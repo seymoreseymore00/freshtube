@@ -1,4 +1,3 @@
-
 async function loadPlaylists() {
   const res = await fetch("/api/playlists");
   const data = await res.json();
@@ -12,12 +11,9 @@ async function loadItems() {
   const res = await fetch(`/api/playlist-items?id=${playlist.value}`);
   const data = await res.json();
 
-  list.innerHTML = data.map(v => `
-    <div>
-      ${v.title}
-      <button onclick="del(${v.id})">Delete</button>
-    </div>
-  `).join("");
+  list.innerHTML = data.map(v =>
+    `<div>${v.title}</div>`
+  ).join("");
 }
 
 async function add() {
@@ -33,20 +29,6 @@ async function add() {
   loadItems();
 }
 
-async function del(id) {
-  await fetch("/api/playlist-items", {
-    method: "DELETE",
-    body: JSON.stringify({ id })
-  });
-
-  loadItems();
-}
-
 playlist.onchange = loadItems;
 
 loadPlaylists().then(loadItems);
-
-async function logout() {
-  await fetch("/api/logout", { method: "POST" });
-  location.href = "/login.html";
-}
