@@ -1,5 +1,4 @@
-<h1>My Playlists</h1>
-
+<h1>Playlists</h1>
 <div id="list"></div>
 
 <script>
@@ -10,11 +9,9 @@ async function load() {
   list.innerHTML = data.map(p => `
     <div>
       <h3>${p.name}</h3>
-      <p>${p.type}</p>
       <a href="/playlist.html?id=${p.id}">Open</a>
     </div>
   `).join("");
 }
-
 load();
 </script>
