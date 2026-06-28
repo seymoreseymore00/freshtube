@@ -1,33 +1,61 @@
-export async function onRequestPost({ request, env }) {
-  const db = env.DB;
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Register</title>
+</head>
+<body>
+
+<h1>Create Account</h1>
+
+<input id="username" placeholder="Username" />
+<br><br>
+
+<input id="password" type="password" placeholder="Password" />
+<br><br>
+
+<button onclick="register()">Register</button>
+
+<p id="msg"></p>
+
+<script>
+async function register() {
+  msg.innerText = "Loading...";
 
   try {
-    const { username, password } = await request.json();
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: username.value,
+        password: password.value
+      })
+    });
 
-    if (!username || !password) {
-      return new Response("Missing fields", { status: 400 });
+    const text = await res.text();
+
+    if (res.ok) {
+      msg.innerText = "Account created! Redirecting...";
+      setTimeout(() => {
+        window.location.href = "/login.html";
+      }, 800);
+      return;
     }
 
-    const hashBuf = await crypto.subtle.digest(
-      "SHA-256",
-      new TextEncoder().encode(password)
-    );
+    if (res.status === 409) {
+      msg.innerText = "Username already exists";
+      return;
+    }
 
-    const hash = [...new Uint8Array(hashBuf)]
-      .map(b => b.toString(16).padStart(2, "0"))
-      .join("");
-
-    await db.prepare(
-      "INSERT INTO users (username, password_hash) VALUES (?, ?)"
-    ).bind(username, hash).run();
-
-    return Response.json({ ok: true });
+    msg.innerText = text;
 
   } catch (err) {
-    if (err.message.includes("UNIQUE")) {
-      return new Response("Username already exists", { status: 409 });
-    }
-
-    return new Response("Register error: " + err.message, { status: 500 });
+    msg.innerText = "Network error";
   }
 }
+</script>
+
+</body>
+</html>
