@@ -6,7 +6,7 @@ export async function onRequestPost({ request, env }) {
 
   if (token) {
     await db.prepare(
-      "UPDATE sessions SET is_revoked=1 WHERE session_token=?"
+      "UPDATE sessions SET is_revoked = 1 WHERE session_token = ?"
     ).bind(token).run();
   }
 
