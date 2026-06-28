@@ -1,9 +1,5 @@
 export async function onRequestGet({ env }) {
   const db = env["freshtube-db"];
-
-  const { results } = await db.prepare(
-    "SELECT * FROM playlists ORDER BY id ASC"
-  ).all();
-
+  const { results } = await db.prepare("SELECT * FROM playlists").all();
   return Response.json(results);
 }
