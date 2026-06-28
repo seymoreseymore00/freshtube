@@ -1,15 +1,10 @@
-export async function requireUser(request, env) {
-  const db = env["freshtube-db"];
+export async function requireAdmin(request, env) {
+  const db = env.DB;
 
   const cookie = request.headers.get("Cookie") || "";
-  const token = cookie
-    .split("; ")
-    .find(c => c.startsWith("session="))
-    ?.split("=")[1];
+  const token = cookie.split("session=")[1]?.split(";")[0];
 
-  if (!token) {
-    return { error: "No session" };
-  }
+  if (!token) return new Response("Unauthorized", { status: 401 });
 
   const session = await db.prepare(`
     SELECT * FROM sessions
@@ -18,22 +13,7 @@ export async function requireUser(request, env) {
     AND expires_at > datetime('now')
   `).bind(token).first();
 
-  if (!session) {
-    return { error: "Invalid session" };
-  }
-
-  return session;
-}
-
-// admin helper
-export async function requireAdmin(request, env) {
-  const session = await requireUser(request, env);
-
-  if (session.error) {
-    return new Response("Unauthorized", { status: 401 });
-  }
-
-  if (!session.is_admin) {
+  if (!session || session.is_admin !== 1) {
     return new Response("Forbidden", { status: 403 });
   }
 
