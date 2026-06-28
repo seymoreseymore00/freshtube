@@ -2,8 +2,7 @@ export async function onRequestPost({ request, env }) {
   const db = env.DB;
 
   try {
-    const body = await request.json();
-    const { username, password } = body;
+    const { username, password } = await request.json();
 
     if (!username || !password) {
       return new Response("Missing fields", { status: 400 });
@@ -25,6 +24,10 @@ export async function onRequestPost({ request, env }) {
     return Response.json({ ok: true });
 
   } catch (err) {
+    if (err.message.includes("UNIQUE")) {
+      return new Response("Username already exists", { status: 409 });
+    }
+
     return new Response("Register error: " + err.message, { status: 500 });
   }
 }
