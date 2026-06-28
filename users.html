@@ -1,0 +1,26 @@
+<h1>Users</h1>
+
+<div id="list"></div>
+<div id="pages"></div>
+
+<script>
+let page = 1;
+
+function load(p) {
+  page = p;
+
+  fetch(`/api/users?page=${p}`)
+    .then(r => r.json())
+    .then(d => {
+      list.innerHTML = d.users.map(u =>
+        `<div>${u.username}</div>`
+      ).join("");
+
+      pages.innerHTML = Array.from({length: d.totalPages}, (_,i) =>
+        `<button onclick="load(${i+1})">${i+1}</button>`
+      ).join("");
+    });
+}
+
+load(1);
+</script>
