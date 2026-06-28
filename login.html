@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Login</title>
-</head>
+<head><title>Login</title></head>
 <body>
 
 <h1>Login</h1>
 
-<input id="username" placeholder="username" />
+<input id="username" placeholder="username">
 <br><br>
-
-<input id="password" type="password" placeholder="password" />
+<input id="password" type="password" placeholder="password">
 <br><br>
 
 <button onclick="login()">Login</button>
@@ -19,13 +16,11 @@
 
 <script>
 async function login() {
-  msg.innerText = "logging in...";
+  msg.innerText = "Logging in...";
 
   const res = await fetch("/api/login", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       username: username.value,
       password: password.value
@@ -35,12 +30,10 @@ async function login() {
   const text = await res.text();
 
   if (res.ok) {
-    msg.innerText = "Logged in!";
-    setTimeout(() => {
-      window.location.href = "/index.html";
-    }, 500);
+    msg.innerText = "Success!";
+    setTimeout(() => location.href = "/index.html", 500);
   } else {
-    msg.innerText = "Error: " + text;
+    msg.innerText = text;
   }
 }
 </script>
