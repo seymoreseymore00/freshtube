@@ -1,42 +1,39 @@
 let playlist = [];
-let index = 0;
+let i = 0;
 let player;
 
 const id = new URLSearchParams(location.search).get("id");
 
-async function load() {
-  const res = await fetch(`/api/playlist-items?id=${id}`);
-  playlist = await res.json();
-
-  loadVideo(0);
-  render();
-}
+fetch(`/api/playlist-items?id=${id}`)
+  .then(r => r.json())
+  .then(data => {
+    playlist = data;
+    load(0);
+  });
 
 function onYouTubeIframeAPIReady() {
   player = new YT.Player("player", {
     events: {
       onStateChange: e => {
-        if (e.data === YT.PlayerState.ENDED) next();
+        if (e.data === 0) next();
       }
     }
   });
 }
 
-function loadVideo(i) {
-  index = i;
+function load(n) {
+  i = n;
   player.loadVideoById(playlist[i].youtube_id);
-}
-
-function next() {
-  index = (index + 1) % playlist.length;
-  loadVideo(index);
   render();
 }
 
-function render() {
-  queue.innerHTML = playlist.map((v,i)=>`
-    <div>${i===index?"▶":""} ${v.title}</div>
-  `).join("");
+function next() {
+  i = (i + 1) % playlist.length;
+  load(i);
 }
 
-load();
+function render() {
+  queue.innerHTML = playlist.map((v, idx) =>
+    `<div>${idx === i ? "▶" : ""} ${v.title}</div>`
+  ).join("");
+}
