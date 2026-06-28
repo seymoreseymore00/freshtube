@@ -14,8 +14,8 @@ export async function requireAdmin(request, env) {
   `).bind(token).first();
 
   if (!session || session.is_admin !== 1) {
-    return new Response("Forbidden", { status: 403 });
+    return new Response("Forbidden (admin only)", { status: 403 });
   }
 
-  return null;
+  return session;
 }
