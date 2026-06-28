@@ -1,19 +1,30 @@
 export async function onRequestPost({ request, env }) {
   const db = env.DB;
-  const { username, password } = await request.json();
 
-  const hashBuf = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(password)
-  );
+  try {
+    const body = await request.json();
+    const { username, password } = body;
 
-  const hash = [...new Uint8Array(hashBuf)]
-    .map(b => b.toString(16).padStart(2, "0"))
-    .join("");
+    if (!username || !password) {
+      return new Response("Missing fields", { status: 400 });
+    }
 
-  await db.prepare(
-    "INSERT INTO users (username, password_hash) VALUES (?, ?)"
-  ).bind(username, hash).run();
+    const hashBuf = await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(password)
+    );
 
-  return Response.json({ ok: true });
+    const hash = [...new Uint8Array(hashBuf)]
+      .map(b => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    await db.prepare(
+      "INSERT INTO users (username, password_hash) VALUES (?, ?)"
+    ).bind(username, hash).run();
+
+    return Response.json({ ok: true });
+
+  } catch (err) {
+    return new Response("Register error: " + err.message, { status: 500 });
+  }
 }
