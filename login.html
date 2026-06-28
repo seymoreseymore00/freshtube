@@ -8,16 +8,10 @@
 async function login() {
   const res = await fetch("/api/login", {
     method: "POST",
-    body: JSON.stringify({
-      username: u.value,
-      password: p.value
-    })
+    body: JSON.stringify({ username: u.value, password: p.value })
   });
 
-  if (res.ok) {
-    location.href = "/index.html";
-  } else {
-    alert("Login failed");
-  }
+  if (res.ok) location.href = "/dashboard.html";
+  else alert("failed");
 }
 </script>
