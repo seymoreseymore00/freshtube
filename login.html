@@ -1,17 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+</head>
+<body>
+
 <h1>Login</h1>
 
-<input id="u" placeholder="username">
-<input id="p" type="password" placeholder="password">
+<input id="username" placeholder="username" />
+<br><br>
+
+<input id="password" type="password" placeholder="password" />
+<br><br>
+
 <button onclick="login()">Login</button>
+
+<p id="msg"></p>
 
 <script>
 async function login() {
+  msg.innerText = "logging in...";
+
   const res = await fetch("/api/login", {
     method: "POST",
-    body: JSON.stringify({ username: u.value, password: p.value })
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      username: username.value,
+      password: password.value
+    })
   });
 
-  if (res.ok) location.href = "/dashboard.html";
-  else alert("failed");
+  const text = await res.text();
+
+  if (res.ok) {
+    msg.innerText = "Logged in!";
+    setTimeout(() => {
+      window.location.href = "/index.html";
+    }, 500);
+  } else {
+    msg.innerText = "Error: " + text;
+  }
 }
 </script>
+
+</body>
+</html>
