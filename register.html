@@ -1,20 +1,16 @@
 <h1>Register</h1>
 
-<input id="u" placeholder="username">
-<input id="p" type="password" placeholder="password">
+<input id="u">
+<input id="p" type="password">
 <button onclick="reg()">Register</button>
 
 <script>
 async function reg() {
   await fetch("/api/register", {
     method: "POST",
-    body: JSON.stringify({
-      username: u.value,
-      password: p.value
-    })
+    body: JSON.stringify({ username: u.value, password: p.value })
   });
 
-  alert("Registered!");
   location.href = "/login.html";
 }
 </script>
