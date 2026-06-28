@@ -1,49 +1,33 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Register</title>
-</head>
-<body>
+export async function onRequestPost({ request, env }) {
+  const db = env.DB;
 
-<h1>Register</h1>
+  try {
+    const { username, password } = await request.json();
 
-<input id="username" placeholder="username" />
-<br><br>
+    if (!username || !password) {
+      return new Response("Missing fields", { status: 400 });
+    }
 
-<input id="password" type="password" placeholder="password" />
-<br><br>
+    const hashBuf = await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(password)
+    );
 
-<button onclick="register()">Create account</button>
+    const hash = [...new Uint8Array(hashBuf)]
+      .map(b => b.toString(16).padStart(2, "0"))
+      .join("");
 
-<p id="msg"></p>
+    await db.prepare(
+      "INSERT INTO users (username, password_hash) VALUES (?, ?)"
+    ).bind(username, hash).run();
 
-<script>
-async function register() {
-  msg.innerText = "loading...";
+    return Response.json({ ok: true });
 
-  const res = await fetch("/api/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      username: username.value,
-      password: password.value
-    })
-  });
+  } catch (err) {
+    if (err.message.includes("UNIQUE")) {
+      return new Response("Username already exists", { status: 409 });
+    }
 
-  const text = await res.text();
-
-  if (res.ok) {
-    msg.innerText = "Account created! Go to login.";
-    setTimeout(() => {
-      window.location.href = "/login.html";
-    }, 800);
-  } else {
-    msg.innerText = "Error: " + text;
+    return new Response("Register error: " + err.message, { status: 500 });
   }
 }
-</script>
-
-</body>
-</html>
