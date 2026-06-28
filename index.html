@@ -1,12 +1,57 @@
-<h1>Playlists</h1>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>FreshTube</title>
+</head>
+<body>
+
+<div style="display:flex; justify-content:space-between; align-items:center;">
+  <h1>FreshTube</h1>
+
+  <div>
+    <span id="user"></span>
+    <button onclick="goLogin()">Login</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<hr>
+
+<h2>Playlists</h2>
 <div id="list"></div>
 
 <script>
-fetch("/api/playlists")
-  .then(r => r.json())
-  .then(data => {
-    list.innerHTML = data.map(p =>
-      `<a href="/playlist.html?id=${p.id}">${p.name}</a>`
-    ).join("<br>");
-  });
+async function loadUser() {
+  const res = await fetch("/api/me");
+  const data = await res.json();
+
+  user.innerText = "👤 " + data.user.display_name;
+}
+
+async function loadPlaylists() {
+  const res = await fetch("/api/playlists");
+  const data = await res.json();
+
+  list.innerHTML = data.map(p =>
+    `<div>
+      <a href="/playlist.html?id=${p.id}">${p.name}</a>
+    </div>`
+  ).join("");
+}
+
+function goLogin() {
+  location.href = "/login.html";
+}
+
+async function logout() {
+  await fetch("/api/logout", { method: "POST" });
+  location.reload();
+}
+
+loadUser();
+loadPlaylists();
 </script>
+
+</body>
+</html>
