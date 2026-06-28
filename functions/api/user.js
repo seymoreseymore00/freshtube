@@ -1,18 +1,24 @@
 export async function onRequestGet({ request, env }) {
-  const db = env["freshtube-db"];
+  const db = env.DB;
 
-  const id = new URL(request.url).searchParams.get("id");
+  const page = parseInt(new URL(request.url).searchParams.get("page") || "1");
+  const limit = 10;
+  const offset = (page - 1) * limit;
 
-  const user = await db.prepare(
-    "SELECT id, username, display_name, bio, avatar_url FROM users WHERE id = ?"
-  ).bind(id).first();
+  const count = await db.prepare(
+    "SELECT COUNT(*) as c FROM users"
+  ).first();
 
-  const playlists = await db.prepare(
-    "SELECT * FROM user_playlists WHERE user_id = ? AND is_public = 1"
-  ).bind(id).all();
+  const { results } = await db.prepare(`
+    SELECT id, username, display_name, created_at
+    FROM users
+    ORDER BY id DESC
+    LIMIT ? OFFSET ?
+  `).bind(limit, offset).all();
 
   return Response.json({
-    ...user,
-    playlists: playlists.results
+    users: results,
+    totalPages: Math.ceil(count.c / limit),
+    page
   });
 }
