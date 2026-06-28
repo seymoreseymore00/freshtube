@@ -1,10 +1,27 @@
-<h1>Admin</h1>
+<h1>Admin Login</h1>
 
-<select id="playlist"></select>
-<input id="title">
-<input id="yt">
-<button onclick="add()">Add</button>
+<input id="u" placeholder="username">
+<input id="p" type="password" placeholder="password">
 
-<div id="list"></div>
+<button onclick="login()">Login as Admin</button>
 
-<script src="/js/admin.js"></script>
+<p id="msg"></p>
+
+<script>
+async function login() {
+  const res = await fetch("/api/admin-login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username: u.value,
+      password: p.value
+    })
+  });
+
+  if (res.ok) {
+    location.href = "/index.html";
+  } else {
+    msg.innerText = await res.text();
+  }
+}
+</script>
