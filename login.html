@@ -1,19 +1,23 @@
-<h1>Admin Login</h1>
+<h1>Login</h1>
 
-<input id="pw" type="password" placeholder="Password">
+<input id="u" placeholder="username">
+<input id="p" type="password" placeholder="password">
 <button onclick="login()">Login</button>
 
 <script>
 async function login() {
   const res = await fetch("/api/login", {
     method: "POST",
-    body: JSON.stringify({ password: pw.value })
+    body: JSON.stringify({
+      username: u.value,
+      password: p.value
+    })
   });
 
   if (res.ok) {
-    location.href = "/admin.html";
+    location.href = "/index.html";
   } else {
-    alert("Wrong password");
+    alert("Login failed");
   }
 }
 </script>
