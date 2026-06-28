@@ -2,8 +2,7 @@ export async function onRequestPost({ request, env }) {
   const db = env.DB;
 
   try {
-    const body = await request.json();
-    const { username, password } = body;
+    const { username, password } = await request.json();
 
     const hashBuf = await crypto.subtle.digest(
       "SHA-256",
@@ -24,10 +23,10 @@ export async function onRequestPost({ request, env }) {
 
     const token = crypto.randomUUID();
 
-    await db.prepare(
-      `INSERT INTO sessions (session_token, user_id, expires_at)
-       VALUES (?, ?, datetime('now','+7 days'))`
-    ).bind(token, user.id).run();
+    await db.prepare(`
+      INSERT INTO sessions (session_token, user_id, expires_at)
+      VALUES (?, ?, datetime('now','+7 days'))
+    `).bind(token, user.id).run();
 
     return new Response("ok", {
       headers: {
